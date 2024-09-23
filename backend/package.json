@@ -18,6 +18,7 @@
     },
     "scripts": {
         "start": "npm run build && node dist/server.js",
+        "start-local": "npm run build && MONGODB_URI=mongodb://localhost:27017/node-auth SECRET_KEY=mysecretkey node dist/server.js",
         "build": "tsc"
     },
     "overrides": {

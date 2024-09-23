@@ -9,17 +9,13 @@ export const HomePage = () => {
 
     return (
         <Container maxWidth="md">
-            <AppBar position="static">
-                <Toolbar>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        Home Page
-                    </Typography>
-                </Toolbar>
-            </AppBar>
             <Box display="flex" flexDirection="column" alignItems="center" mt={4}>
                 <img src={logo} alt="logo" style={{ width: '150px', height: '150px' }} />
                 <Typography variant="h4" component="h1" gutterBottom>
-                    Welcome to Our Website
+                    Welcome to TimeLance
+                </Typography>
+                <Typography variant="subtitle1" component="p" gutterBottom>
+                    Your ultimate tool for time management and productivity improvement
                 </Typography>
                 {!isAuthenticated ? (
                     <Box mt={2}>

@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
+
+interface ErrorData {
+    message: string,
+    status: number,
+}
 
 export const RegisterPage = () => {
     const [username, setUsername] = useState('');
@@ -14,9 +19,16 @@ export const RegisterPage = () => {
         event.preventDefault();
         try {
             await axios.post('http://localhost:5000/auth/register', { username, password, email });
-            navigate('/login', { state: { message: 'Registration successful! Please log in.' } });        } catch (error) {
-            console.error('Error registering:', error);
-            setError('Registration failed. Please try again.');
+            navigate('/login', { state: { message: 'Registration successful! Please log in.' } });        
+        } catch (error) {
+            const axiosError = error as AxiosError<ErrorData>;
+            const errorData = axiosError.response?.data;
+            console.error('Error registering:', errorData);
+            if (errorData) {
+                setError(`Registration failed. ${errorData.message}`);
+            } else {
+                setError('Registration failed. Please try again.');
+            }
         }
     };
 

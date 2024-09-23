@@ -1,17 +1,13 @@
 import express from 'express';
-import mongoose from 'mongoose';
 import cors from 'cors';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import AuthRoutes from './routes/Auth';
 import UserRoutes from './routes/User';
 import DevToolsRoutes from './routes/DevTools';
-import connectDB from './db';
+import connectDB from './utils/db';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-console.log("ahoj")
 console.log(process.env.MONGODB_URI)
 
 const app = express();

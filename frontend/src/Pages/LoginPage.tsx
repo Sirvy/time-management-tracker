@@ -29,6 +29,7 @@ export const LoginPage = () => {
             const response = await axios.post('http://localhost:5000/auth/login', { username, password });
             login(response.data.token);
             navigate('/user/profile');
+            window.location.reload();
         } catch (error) {
             console.error('Error logging in:', error);
             setError('Invalid username or password. Please try again.');
