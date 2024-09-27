@@ -2,23 +2,10 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFnsV3';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { categories } from '../Mocks/Categories';
 import Timer from './Timer';
+import { Category, Task } from '../Interface/interface';
+import { useCategories } from '../hooks/useCategories';
 
-
-export interface Category {
-    id: number,
-    name: string,
-    color: string
-}
-
-export interface Task {
-    title: string,
-    description?: string,
-    timeSpent: number,
-    date: Date,
-    category: number
-}
 
 interface TaskFormProps {
   onSubmit: (task: Task) => void;
@@ -30,7 +17,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
   const [description, setDescription] = useState('');
   const [timeSpent, setTimeSpent] = useState('');
   const [date, setDate] = useState<Date | null>(new Date());
-  const [category, setCategory] = useState(0);
+  const [category, setCategory] = useState('');
+  const { categories } = useCategories();
 
 // Parse timeSpent string into seconds
   const parseTimeSpent = (timeString: string): number => {
@@ -58,25 +46,24 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-
-
     const timeSpentInSeconds = parseTimeSpent(timeSpent);
     setTimeSpent(timeSpentInSeconds.toString());
 
     if (title && date) {
       onSubmit({
+        _id: null,
         title,
         description,
         timeSpent: timeSpentInSeconds,
         date: date as Date,
-        category
+        categoryId: category
       });
       // Reset form fields
       setTitle('');
       setDescription('');
       setTimeSpent('');
       setDate(new Date());
-      setCategory(0);
+      setCategory('0');
     }
   };
 
@@ -139,18 +126,18 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
         />
       </LocalizationProvider>
       <FormControl fullWidth margin="normal">
-        <InputLabel id="category-label">Category</InputLabel>
+      <InputLabel id="category-label">Category</InputLabel>
         <Select
           label='Catego'
           labelId="category-label"
           value={category}
-          onChange={(e) => setCategory(Number(e.target.value))}
+          onChange={(e) => setCategory(e.target.value)}
           required
         >
-          {categories.map((cat) => (
+          {categories.map((cat: Category) => (
             <MenuItem 
-              key={cat.id} 
-              value={cat.id}
+              key={cat._id}
+              value={cat._id}
             >
               <Box display="flex" alignItems="center">
                 <Box

@@ -1,6 +1,6 @@
 import React, { ReactNode, useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Container, Box, CssBaseline } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 // Define the type for the props
@@ -13,14 +13,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const { isAuthenticated, logout } = useAuth();
     const [auth, setAuth] = useState(isAuthenticated);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
-        console.log(isAuthenticated)
         setAuth(isAuthenticated);
     }, [isAuthenticated]);
 
     const handleLogout = () => {
         logout();
         setAuth(false);
+        navigate('/');
+        window.location.reload();
     };
 
     return (
@@ -36,9 +39,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                     <Box sx={{ display: 'flex' }}>
                         <Link to="/" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>
                             Home
-                        </Link>
-                        <Link to="/test" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>
-                            Test
                         </Link>
                         {auth ? (
                             <>

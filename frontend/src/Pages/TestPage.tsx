@@ -9,7 +9,7 @@ export const TestPage = () => {
     const [data, setData] = useState<TestPageProps | null>(null);
 
     useEffect(() => {
-        fetch('http://localhost:5000/test')
+        fetch(`${process.env.REACT_APP_BACKEND_HOST}/test`)
             .then(response => response.json())
             .then(data => setData(data))
             .catch(error => console.error('error', error));

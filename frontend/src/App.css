@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+.task {
+  transition: all 0.3s ease;
+}
+
+.task:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}

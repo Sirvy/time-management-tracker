@@ -1,25 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 
 const Timer: React.FC = () => {
   const [time, setTime] = useState<number>(0);
   const [isRunning, setIsRunning] = useState<boolean>(false);
+  const startTimeRef = useRef<number>(0);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
 
-    if (isRunning) {
+    if (isRunning) {      
+      startTimeRef.current = Date.now() - time * 1000; // Adjust for the elapsed time
       interval = setInterval(() => {
-        setTime((prevTime) => prevTime + 1);
+        const currentTime = Date.now();
+        const elapsedTime = Math.floor((currentTime - startTimeRef.current) / 1000);
+        setTime(elapsedTime);
       }, 1000);
-    } else if (!isRunning && interval) {
+    } else if (!isRunning && interval && time !== 0) {
       clearInterval(interval);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isRunning]);
+  }, [isRunning, time]);
 
   const handleStartPause = () => {
     setIsRunning(!isRunning);

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
+import { useRegister } from '../hooks/data-hooks/useRegister';
 
 interface ErrorData {
     message: string,
@@ -13,24 +14,28 @@ export const RegisterPage = () => {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
+    const { mutate: handleRegister } = useRegister();
     const navigate = useNavigate();
 
-    const handleRegister = async (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        try {
-            await axios.post('http://localhost:5000/auth/register', { username, password, email });
-            navigate('/login', { state: { message: 'Registration successful! Please log in.' } });        
-        } catch (error) {
-            const axiosError = error as AxiosError<ErrorData>;
-            const errorData = axiosError.response?.data;
-            console.error('Error registering:', errorData);
-            if (errorData) {
-                setError(`Registration failed. ${errorData.message}`);
-            } else {
-                setError('Registration failed. Please try again.');
+        setError('');
+
+        handleRegister({ username, password, email }, {
+            onSuccess: (data) => {
+                navigate('/login', { state: { message: 'Registration successful! Please log in.' } });        
+            },
+            onError: (error) => {
+                const axiosError = error as AxiosError<ErrorData>;
+                const errorData = axiosError.response?.data;
+                if (errorData) {
+                    setError(`Registration failed. ${errorData.message}`);
+                } else {
+                    setError('Registration failed. Please try again.');
+                }
             }
-        }
-    };
+        });
+    }
 
     return (
         <Container maxWidth="sm">
@@ -38,7 +43,7 @@ export const RegisterPage = () => {
                 Register Page
             </Typography>
             {error && <Alert severity="error">{error}</Alert>}
-            <Box component="form" onSubmit={handleRegister} noValidate sx={{ mt: 1 }}>
+            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                 <TextField
                     margin="normal"
                     required

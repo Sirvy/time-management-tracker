@@ -1,92 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Container, Typography, Box, Avatar, Paper, Button, Grid } from '@mui/material';
-import { useAuth } from '../hooks/useAuth';
-import Timer from '../Components/Timer';
-import TaskForm, { Task } from '../Components/TaskForm';
+import { Container, Typography, Box, Avatar, Paper, Grid } from '@mui/material';
+import TaskForm from '../Components/TaskForm';
 import TaskList from '../Components/TaskList';
+import { Task } from '../Interface/interface';
+import { useTasks } from '../hooks/useTasks';
+import { useCreateTask } from '../hooks/data-hooks/useTasks';
 
 export const ProfilePage = () => {
     const [username, setUsername] = useState('');
-    const [tasks, setTasks] = useState<Task[]>([]);
+    const { tasks } = useTasks();
+    const createTask = useCreateTask();
+    //const [tasks, setTasks] = useState<Task[]>([]);
 
-    const { logout } = useAuth();
-
-    useEffect(() => {
-
-        const tasks = [
-            {
-              title: "Finish client report",
-              timeSpent: 7200, // 2 hours
-              date: new Date('2024-09-18'),
-              category: 1 // Work
-            },
-            {
-              title: "Study for final exams",
-              timeSpent: 5400, // 1.5 hours
-              date: new Date('2024-09-19'),
-              category: 2 // Study
-            },
-            {
-              title: "Morning run",
-              timeSpent: 1800, // 30 minutes
-              date: new Date('2024-09-20'),
-              category: 4 // Exercise/Fitness
-            },
-            {
-              title: "Play video games",
-              timeSpent: 3600, // 1 hour
-              date: new Date('2024-09-20'),
-              category: 8 // Gaming
-            },
-            {
-              title: "House cleaning",
-              timeSpent: 3600, // 1 hour
-              date: new Date('2024-09-21'),
-              category: 7 // Household Chores
-            },
-            {
-              title: "Lunch with friends",
-              timeSpent: 5400, // 1.5 hours
-              date: new Date('2024-09-21'),
-              category: 6 // Socializing
-            },
-            {
-              title: "Sleep",
-              timeSpent: 28800, // 8 hours
-              date: new Date('2024-09-22'),
-              category: 3 // Sleep
-            },
-            {
-              title: "Buy groceries",
-              timeSpent: 1800, // 30 minutes
-              date: new Date('2024-09-22'),
-              category: 12 // Shopping/Errands
-            },
-            {
-              title: "Meal prep",
-              timeSpent: 3600, // 1 hour
-              date: new Date('2024-09-23'),
-              category: 9 // Meal Prep/Eating
-            },
-            {
-              title: "Work on application",
-              timeSpent: 10800, // 3 hours
-              date: new Date('2024-09-23'),
-              category: 1 // Work
-            }
-          ];
-
-          setTasks(tasks);
-          
-
-    }, [])
+    useEffect(() => {}, [tasks]);
 
     useEffect(() => {
         const fetchProtectedData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await axios.get('http://localhost:5000/user/profile', {
+                const response = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/user/profile`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -101,7 +34,11 @@ export const ProfilePage = () => {
     }, []);
 
     const handleTaskSubmit = (newTask: Task) => {
-        setTasks([...tasks, newTask]);
+        createTask.mutate(newTask, {
+            onError: (error) => {
+                console.error(error);
+            }
+        });
     };
 
     return (

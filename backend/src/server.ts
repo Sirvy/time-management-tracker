@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import AuthRoutes from './routes/Auth';
 import UserRoutes from './routes/User';
+import TaskRoutes from './routes/Tasks';
 import DevToolsRoutes from './routes/DevTools';
 import connectDB from './utils/db';
 import dotenv from 'dotenv';
@@ -19,13 +20,14 @@ app.use(express.json());
 
 connectDB();
 
-// authentication routes
 app.use('/auth', AuthRoutes);
 
-// user routes
 app.use('/user', UserRoutes);
 
-// DevTools
+app.use('/tasks', TaskRoutes);
+
+app.use('/categories', TaskRoutes);
+
 app.use('/devtools', DevToolsRoutes);
 
 
