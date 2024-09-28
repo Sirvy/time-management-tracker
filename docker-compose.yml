@@ -1,4 +1,5 @@
 version: '3'
+
 services:
   frontend:
     build: ./frontend
@@ -8,7 +9,8 @@ services:
       - backend
     environment:
       - CHOKIDAR_USEPOLLING=true
-      - REACT_APP_BACKEND_HOST=http://backend:5000
+      - REACT_APP_BACKEND_HOST=http://localhost:5000
+
   backend:
     build: ./backend
     environment:
@@ -18,6 +20,7 @@ services:
       - "5000:5000"
     depends_on:
       - mongo
+
   mongo:
     image: mongo
     ports:

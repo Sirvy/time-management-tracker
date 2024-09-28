@@ -40,6 +40,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         <Link to="/" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>
                             Home
                         </Link>
+                        <Link to="/test" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>
+                            Test
+                        </Link>
                         {auth ? (
                             <>
                                 <Link to="/user/profile" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>
