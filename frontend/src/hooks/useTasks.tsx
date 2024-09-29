@@ -12,7 +12,7 @@ export const useTasks = () => {
             return {
                 _id: task._id,
                 title: task.title,
-                categoryId: task.categoryId,
+                categoryId: task.categoryId ?? '0',
                 date: new Date(task.date),
                 description: task.description,
                 timeSpent: task.timeSpent

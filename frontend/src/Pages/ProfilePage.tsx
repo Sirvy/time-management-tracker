@@ -6,22 +6,31 @@ import TaskList from '../Components/TaskList';
 import { Task } from '../Interface/interface';
 import { useTasks } from '../hooks/useTasks';
 import { useCreateTask } from '../hooks/data-hooks/useTasks';
+import { getToken, isTokenValid, refreshTokenIfExpired } from '../Services/AuthService';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Providers/AuthProvider';
 
 export const ProfilePage = () => {
     const [username, setUsername] = useState('');
     const { tasks } = useTasks();
     const createTask = useCreateTask();
+    const navigate = useNavigate();
+    const { setAuth } = useAuth();
     //const [tasks, setTasks] = useState<Task[]>([]);
 
     useEffect(() => {}, [tasks]);
 
     useEffect(() => {
         const fetchProtectedData = async () => {
+            await refreshTokenIfExpired();
+            if (!isTokenValid()) {
+                setAuth(false);
+                navigate('/');
+            }
             try {
-                const token = localStorage.getItem('token');
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_HOST}/user/profile`, {
                     headers: {
-                        Authorization: `Bearer ${token}`,
+                        Authorization: `Bearer ${getToken()}`,
                     },
                 });
                 setUsername(response.data.message);
@@ -33,7 +42,12 @@ export const ProfilePage = () => {
         fetchProtectedData();
     }, []);
 
-    const handleTaskSubmit = (newTask: Task) => {
+    const handleTaskSubmit = async (newTask: Task) => {
+        await refreshTokenIfExpired();
+        if (!isTokenValid()) {
+            setAuth(false);
+            navigate('/');
+        }
         createTask.mutate(newTask, {
             onError: (error) => {
                 console.error(error);

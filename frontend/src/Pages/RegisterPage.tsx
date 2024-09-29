@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
 import { useRegister } from '../hooks/data-hooks/useRegister';
+import { useAuth } from '../Providers/AuthProvider';
 
 interface ErrorData {
     message: string,
@@ -16,6 +17,13 @@ export const RegisterPage = () => {
     const [error, setError] = useState('');
     const { mutate: handleRegister } = useRegister();
     const navigate = useNavigate();
+    const { isLoggedIn } = useAuth();
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate('/');
+        }
+    }, [isLoggedIn])
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();

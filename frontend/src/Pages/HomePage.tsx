@@ -5,7 +5,7 @@
 // import { Button, Container, Typography, Box, AppBar, Toolbar } from '@mui/material';
 
 import React from 'react';
-import { Container, Box, Typography, Button, Grid, Paper, TextField } from '@mui/material';
+import { Container, Box, Typography, Button, Grid, Paper } from '@mui/material';
 import { styled } from '@mui/system';
 
 const StyledContainer = styled(Container)(({ theme }) => ({
@@ -34,7 +34,7 @@ export const HomePage = () => {
           TimeLance
         </Typography>
         <Typography variant="h5" component="p" gutterBottom>
-            Take Control of Your Day and Say Goodbye to Waster Hours.
+            Take Control of Your Day and Stop Wasting Time.
         </Typography>
         <Typography variant="h5" component="p" gutterBottom>
             Track your habits, monitor your routines, and gain insight into how you spend your time.

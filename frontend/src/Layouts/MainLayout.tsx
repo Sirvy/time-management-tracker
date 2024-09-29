@@ -1,7 +1,8 @@
-import React, { ReactNode, useState, useEffect } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Container, Box, CssBaseline } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { isTokenValid, refreshTokenIfExpired, removeTokens } from '../Services/AuthService';
+import { useAuth } from '../Providers/AuthProvider';
 
 // Define the type for the props
 interface MainLayoutProps {
@@ -10,20 +11,22 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
-    const { isAuthenticated, logout } = useAuth();
-    const [auth, setAuth] = useState(isAuthenticated);
+    const { isLoggedIn, setAuth } = useAuth();
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        setAuth(isAuthenticated);
-    }, [isAuthenticated]);
+        const refreshLogin = async () => {
+            await refreshTokenIfExpired();
+            setAuth(isTokenValid());
+        }
+        refreshLogin();
+    }, [])
 
     const handleLogout = () => {
-        logout();
         setAuth(false);
+        removeTokens();
         navigate('/');
-        window.location.reload();
     };
 
     return (
@@ -43,7 +46,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                         <Link to="/test" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>
                             Test
                         </Link>
-                        {auth ? (
+                        {isLoggedIn ? (
                             <>
                                 <Link to="/user/profile" style={{ color: 'inherit', textDecoration: 'none', marginRight: '20px' }}>
                                     Profile

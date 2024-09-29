@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { Container, TextField, Button, Typography, Box, Alert } from '@mui/material';
 import { useLogin } from '../hooks/data-hooks/useLogin';
+import { storeTokens } from '../Services/AuthService';
+import { useAuth } from '../Providers/AuthProvider';
 
 export const LoginPage = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-    const { login } = useAuth();    
     const [message, setMessage] = useState(useLocation().state?.message);
+    const { isLoggedIn, setAuth } = useAuth();
 
     const { mutate: handleLogin, isLoading } = useLogin();
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate('/');
+        }
+    }, [isLoggedIn])
 
     useEffect(() => {
         if (message) {
@@ -29,9 +36,8 @@ export const LoginPage = () => {
         setError('');
         handleLogin({ username, password }, {
             onSuccess: (data) => {
-                login(data.token);
-                navigate('/');
-                window.location.reload();
+                storeTokens(data.accessToken, data.refreshToken);
+                setAuth(true);
             },
             onError: (error) => {
                 if (error.response?.status === 404 || error.response?.status === 401) {

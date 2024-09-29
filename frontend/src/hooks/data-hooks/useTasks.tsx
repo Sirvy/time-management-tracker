@@ -2,14 +2,14 @@ import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { API_BASE_URL } from '../../Config/config';
 import { Task } from '../../Interface/interface';
+import { getToken } from '../../Services/AuthService';
 
 
 export const useFetchTaskList = () => {
   return useQuery('tasks', async () => {
-    const token = localStorage.getItem('token');
     const response = await axios.get(`${API_BASE_URL}/tasks`, {
       headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
       },
   });
     return response.data;
@@ -18,24 +18,22 @@ export const useFetchTaskList = () => {
 
 export const useFetchTask = (taskId: string) => {
   return useQuery(['task', taskId], async () => {
-    const token = localStorage.getItem('token');
     const response = await axios.get(`${API_BASE_URL}/tasks/${taskId}`, {
       headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${getToken()}`,
       },
   });
     return response.data;
   });
 };
 
-export const useCreateTask = () => {
+export const useCreateTask = () => {  
   const queryClient = useQueryClient();
   return useMutation(
     async (newTask: Task) => {
-      const token = localStorage.getItem('token');
       const response = await axios.post(`${API_BASE_URL}/tasks`, newTask, {
         headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${getToken()}`,
         },
     });
       return response.data;
@@ -48,14 +46,13 @@ export const useCreateTask = () => {
   );
 };
 
-export const useDeleteTask = () => {
+export const useDeleteTask = () => {  
   const queryClient = useQueryClient();
   return useMutation(
     async (taskId: string) => {
-      const token = localStorage.getItem('token');
       const response = await axios.delete(`${API_BASE_URL}/tasks/${taskId}`, {
         headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${getToken()}`,
         },
     });
       return response.data;

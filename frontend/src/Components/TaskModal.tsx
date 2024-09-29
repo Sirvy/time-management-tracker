@@ -5,6 +5,9 @@ import { formatTimeFromSeconds } from '../Utils/Utils';
 import { Category, Task } from '../Interface/interface';
 import { useCategories } from '../hooks/useCategories';
 import { useDeleteTask } from '../hooks/data-hooks/useTasks';
+import { isTokenValid, refreshTokenIfExpired } from '../Services/AuthService';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Providers/AuthProvider';
 
 interface TaskModalProps {
     task: Task | null,
@@ -17,6 +20,8 @@ export const TaskModal = (props: TaskModalProps) => {
   const [open, setOpen] = useState(props.task !== null);
   const { categories } = useCategories();
   const deleteTask = useDeleteTask();
+  const navigate = useNavigate();
+  const { setAuth } = useAuth();
 
   const handleClose = () => {
     props.onClose();
@@ -42,7 +47,14 @@ export const TaskModal = (props: TaskModalProps) => {
 
   const category = categories.find((value: Category) => value._id === props.task?.categoryId);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
+    
+    await refreshTokenIfExpired();
+    if (!isTokenValid()) {
+      setAuth(false);
+      navigate('/');
+    }
+    
     if (!window.confirm("Are you sure?") || !props.task || !props.task._id) {
       return;
     }

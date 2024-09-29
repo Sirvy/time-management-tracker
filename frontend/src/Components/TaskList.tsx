@@ -119,6 +119,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
       return {
         name: category?.name || 'Unknown',
         percentage: (time / totalTime) * 100,
+        totalHours: (time / 3600),
         color: category?.color || '#000000',
       };
     });
@@ -232,7 +233,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
               }}
             />
             <Typography variant="body2" sx={{ mt: 0.5 }}>
-              {category.percentage.toFixed(2)}%
+              {category.percentage.toFixed(2)}% (~{category.totalHours}h)
             </Typography>
           </Box>
         ))}

@@ -18,8 +18,7 @@ const SECRET_KEY = process.env.SECRET_KEY || 'your_secret_key';
 
 // List of allowed origins
 const allowedOrigins = [
-  'https://wezi.cz', 
-  'https://noponfix.com', 
+  'http://localhost:3000',
 ];
 
 // CORS configuration

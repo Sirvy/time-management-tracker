@@ -1,8 +1,3 @@
-/**
- * Converts seconds to a more readable time format.
- * @param seconds - The number of seconds to convert.
- * @returns A string representing the time in a readable format.
- */
 export function formatTimeFromSeconds(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
