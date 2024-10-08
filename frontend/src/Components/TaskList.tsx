@@ -21,6 +21,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
   const [daysInPeriod, setDaysInPeriod] = useState<Date[]>([]);
   const [modalTask, setModalTask] = useState<Task|null>(null);
   const { categories } = useCategories();
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
     handleThisWeek();
@@ -100,23 +101,35 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
     });
   };
 
+  const handleCategoryClick = (categoryId: string) => {
+    setSelectedCategory(prevCategory => prevCategory === categoryId ? null : categoryId);
+  };
+
+  const getFilteredTasksByCategory = () => {
+    if (!selectedCategory) return filteredTasks;
+    return filteredTasks.filter(task => task.categoryId === selectedCategory);
+  };
+
   const getCategoryProgressData = () => {
     const categoryTimes: { [key: string]: number } = {};
     let totalTime = 0;
 
     filteredTasks.forEach(task => {
-      const categoryKey = task.categoryId || '0';
-      if (categoryTimes[categoryKey]) {
-        categoryTimes[categoryKey] += task.timeSpent;
-      } else {
-        categoryTimes[categoryKey] = task.timeSpent;
+      if (!selectedCategory || task.categoryId === selectedCategory) {
+        const categoryKey = task.categoryId || '0';
+        if (categoryTimes[categoryKey]) {
+          categoryTimes[categoryKey] += task.timeSpent;
+        } else {
+          categoryTimes[categoryKey] = task.timeSpent;
+        }
+        totalTime += task.timeSpent;
       }
-      totalTime += task.timeSpent;
     });
 
     return Object.entries(categoryTimes).map(([categoryId, time]) => {
       const category = getCategoryById(categoryId);
       return {
+        id: categoryId,
         name: category?.name || 'Unknown',
         percentage: (time / totalTime) * 100,
         totalHours: (time / 3600),
@@ -138,6 +151,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
   }
 
   const groupedTasks = groupTasksByDay();
+  const filteredTasksByCategory = getFilteredTasksByCategory();
 
   return (
     <Box>
@@ -169,57 +183,85 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
         <Table>
           <TableHead>
             <TableRow>
-              {Object.entries(groupedTasks).map(([date, tasksForDay]) => (
-                <TableCell key={date} style={{backgroundColor: dateIsToday(date) ? 'rgba(100, 100, 255, 0.1)' : '#fff'}}>
-                  <Typography variant="subtitle1">{format(new Date(date), 'd.M.yyyy EEEE')}</Typography>
-                  <Typography variant="body2">
-                    Total time: {formatTimeFromSeconds(tasksForDay.reduce((sum, task) => sum + task.timeSpent, 0))}
-                  </Typography>
-                </TableCell>
-              ))}
+              {Object.entries(groupedTasks).map(([date, tasksForDay]) => {
+                const filteredTasksForDay = tasksForDay.filter(task => 
+                  !selectedCategory || task.categoryId === selectedCategory
+                );
+                return (
+                  <TableCell key={date} style={{backgroundColor: dateIsToday(date) ? 'rgba(100, 100, 255, 0.1)' : '#fff'}}>
+                    <Typography variant="subtitle1">{format(new Date(date), 'd.M.yyyy EEEE')}</Typography>
+                    <Typography variant="body2">
+                      Total time: {formatTimeFromSeconds(filteredTasksForDay.reduce((sum, task) => sum + task.timeSpent, 0))}
+                    </Typography>
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
             <TableRow>
-              {Object.entries(groupedTasks).map(([date, tasksForDay]) => (
-                <TableCell key={date} sx={{ verticalAlign: 'top', minWidth: '200px' }}>
-                  {tasksForDay.length === 0 ? (
-                    <Typography variant="body2">No tasks</Typography>
-                  ) : (
-                    <>
-                      {tasksForDay.map((task, index) => (
-                        <Card key={index} sx={{ mb: 1, backgroundColor: `${getCategoryById(task.categoryId)?.color}20` }} className={'task'} onClick={() => showTaskModal(task)}>
-                          <CardContent>
-                            <Typography variant="body1">{task.title}</Typography>
-                            <Typography variant="body2">{task.description}</Typography>
-                            <Typography variant="body2">Time spent: {formatTimeFromSeconds(task.timeSpent)}</Typography>
-                            <Typography variant="body2">Category: {getCategoryById(task.categoryId)?.name}</Typography>
-                          </CardContent>
-                        </Card>
-                      ))}
-                      <Typography variant="body2" sx={{ mt: 2 }}>
-                        Total tasks: {tasksForDay.length}
-                      </Typography>
-                      <Box sx={{ height: 150, mt: 2 }}>
-                        <PieChart
-                          data={getCategoryChartData(tasksForDay)}
-                          lineWidth={20}
-                          paddingAngle={2}
-                          label={({ dataEntry }) => `${Math.round(dataEntry.percentage)}%`}
-                          labelStyle={{ fontSize: '5px', fill: '#ffffff' }}
-                        />
-                      </Box>
-                    </>
-                  )}
-                </TableCell>
-              ))}
+              {Object.entries(groupedTasks).map(([date, tasksForDay]) => {
+                const filteredTasksForDay = tasksForDay.filter(task => 
+                  !selectedCategory || task.categoryId === selectedCategory
+                );
+                return (
+                  <TableCell key={date} sx={{ verticalAlign: 'top', minWidth: '200px' }}>
+                    {filteredTasksForDay.length === 0 ? (
+                      <Typography variant="body2">No tasks</Typography>
+                    ) : (
+                      <>
+                        {filteredTasksForDay.map((task, index) => (
+                          <Card key={index} sx={{ mb: 1, backgroundColor: `${getCategoryById(task.categoryId)?.color}40` }} className={'task'} onClick={() => showTaskModal(task)}>
+                            <CardContent>
+                              <Typography variant="body1">{task.title}</Typography>
+                              <Typography variant="body2">{task.description}</Typography>
+                              <Typography variant="body2">Time spent: {formatTimeFromSeconds(task.timeSpent)}</Typography>
+                              <Typography variant="body2">Category: {getCategoryById(task.categoryId)?.name}</Typography>
+                            </CardContent>
+                          </Card>
+                        ))}
+                        <Typography variant="body2" sx={{ mt: 2 }}>
+                          Total tasks: {filteredTasksForDay.length}
+                        </Typography>
+                        <Box sx={{ height: 150, mt: 2 }}>
+                          <PieChart
+                            data={getCategoryChartData(filteredTasksForDay)}
+                            lineWidth={20}
+                            paddingAngle={2}
+                            label={({ dataEntry }) => `${Math.round(dataEntry.percentage)}%`}
+                            labelStyle={{ fontSize: '5px', fill: '#ffffff' }}
+                          />
+                        </Box>
+                      </>
+                    )}
+                  </TableCell>
+                );
+              })}
             </TableRow>
           </TableBody>
         </Table>
       </Box>
       <Box sx={{ mt: 4 }}>
-        {getCategoryProgressData().map((category, index) => (
-          <Box key={index} sx={{ mb: 2 }}>
+        {selectedCategory && (
+          <Button 
+            variant="outlined" 
+            onClick={() => setSelectedCategory(null)} 
+            sx={{ mb: 2 }}
+          >
+            Clear Category Filter
+          </Button>
+        )}
+        {getCategoryProgressData().map((category) => (
+          <Box 
+            key={category.id} 
+            sx={{ 
+              mb: 2, 
+              cursor: 'pointer',
+              opacity: selectedCategory && selectedCategory !== category.id ? 0.5 : 1,
+              transition: 'opacity 0.3s'
+            }}
+            onClick={() => handleCategoryClick(category.id)}
+          >
             <Typography variant="body2">{category.name}</Typography>
             <LinearProgress
               variant="determinate"
@@ -233,7 +275,7 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
               }}
             />
             <Typography variant="body2" sx={{ mt: 0.5 }}>
-              {category.percentage.toFixed(2)}% (~{category.totalHours}h)
+              {category.percentage.toFixed(2)}% (~{category.totalHours.toFixed(2)}h)
             </Typography>
           </Box>
         ))}
