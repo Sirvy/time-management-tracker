@@ -73,7 +73,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ onSubmit }) => {
       setTitle('');
       setDescription('');
       setTimeSpent('');
-      setDate(new Date());
       setCategory('0');
     }
   };

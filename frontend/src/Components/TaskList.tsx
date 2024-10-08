@@ -138,6 +138,37 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
     });
   };
 
+  const calculateProductivityIndex = () => {
+    if (filteredTasks.length === 0) {
+      return { productivityIndex: 0, productivityNote: 'Do some work' };
+    }
+    const sleepTime = filteredTasks.reduce((sum, task) => 
+      getCategoryById(task.categoryId)?.name === 'Sleep' ? sum + task.timeSpent : sum, 0);
+    const leisureTime = filteredTasks.reduce((sum, task) => 
+      ['Entertainment', 'Free time', 'Food', 'Other'].includes(getCategoryById(task.categoryId)?.name ?? '') ? sum + task.timeSpent : sum, 0);
+    const productiveTime = filteredTasks.reduce((sum, task) => 
+      ['Work', 'School/Study', 'Personal Projects', 'Exercise/Fitness', 'Personal development'].includes(getCategoryById(task.categoryId)?.name ?? '') ? sum + task.timeSpent : sum, 0);
+    const totalHours = filteredTasks.reduce((sum, task) => sum + task.timeSpent, 0);
+
+    const sleepPercentage = (sleepTime / totalHours) * 100;
+    const leisurePercentage = (leisureTime / totalHours) * 100;
+    const productivePercentage = (productiveTime / totalHours) * 100;
+
+    const sleepDeviation = Math.abs(sleepPercentage - 33);
+    const leisureDeviation = Math.abs(leisurePercentage - 33);
+    const productiveDeviation = Math.abs(productivePercentage - 33);
+
+    const productivityIndex = (100 - Math.round((sleepDeviation + leisureDeviation + productiveDeviation) / 3));
+
+    let productivityNote = '';
+    if (sleepPercentage < 30) productivityNote = 'Sleep more';
+    else if (leisurePercentage < 30) productivityNote = 'Relax more';
+    else if (productivePercentage < 30) productivityNote = 'Be more productive';
+    else productivityNote = 'Perfectly balanced';
+
+    return { productivityIndex, productivityNote };
+  };
+
   const dateIsToday = (date: string) => {
     return date === new Date().toISOString().split('T')[0];
   }
@@ -279,6 +310,12 @@ const TaskList: React.FC<TaskListProps> = ({ tasks }) => {
             </Typography>
           </Box>
         ))}
+        <Typography variant="h6" sx={{ mt: 4 }}>
+          Productivity Index: {calculateProductivityIndex().productivityIndex}%
+        </Typography>
+        <Typography variant="body2" sx={{ mt: 0.5 }}>
+          Note: {calculateProductivityIndex().productivityNote}
+        </Typography>
       </Box>
     </Box>
   );
